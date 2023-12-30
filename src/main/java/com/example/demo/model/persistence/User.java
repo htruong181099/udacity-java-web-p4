@@ -28,7 +28,7 @@ public class User {
 	private String username;
 
 	@Column(nullable = false)
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
 	@OneToOne(cascade = CascadeType.ALL)

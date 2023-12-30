@@ -104,6 +104,17 @@ public class CartControllerTest {
     }
 
     @Test
+    public void addTocart_500() {
+        ModifyCartRequest modifyCartRequest = createModifyCartRequest();
+        Mockito.when(userRepository.findByUsername(modifyCartRequest.getUsername()))
+                .thenThrow(new RuntimeException());
+
+        ResponseEntity<Cart> response = cartController.addTocart(createModifyCartRequest());
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
     public void removeFromcart_404_UserNotFound() {
         ResponseEntity<Cart> response = cartController.removeFromcart(createModifyCartRequest());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -135,5 +146,16 @@ public class CartControllerTest {
         Cart cart = response.getBody();
         assertNotNull(cart);
         assertEquals(0, cart.getItems().size());
+    }
+
+    @Test
+    public void removeFromcart_500() {
+        ModifyCartRequest modifyCartRequest = createModifyCartRequest();
+        Mockito.when(userRepository.findByUsername(modifyCartRequest.getUsername()))
+                .thenThrow(new RuntimeException());
+
+        ResponseEntity<Cart> response = cartController.removeFromcart(createModifyCartRequest());
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 }

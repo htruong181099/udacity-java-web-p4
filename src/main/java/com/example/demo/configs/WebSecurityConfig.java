@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    public UserDetailsServiceImpl userDetailsService;
 
     @Bean
     @Override

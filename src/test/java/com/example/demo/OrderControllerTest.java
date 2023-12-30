@@ -70,6 +70,17 @@ public class OrderControllerTest {
     }
 
     @Test
+    public void submit_500(){
+        String username = "username";
+        Mockito.when(userRepository.findByUsername(username))
+                .thenThrow(new RuntimeException("test exception"));
+
+        ResponseEntity<UserOrder> response = orderController.submit(username);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,response.getStatusCode());
+    }
+
+    @Test
     public void submit_200(){
         String username = "username";
         User user = createUser(username);
@@ -90,6 +101,16 @@ public class OrderControllerTest {
         ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser(username);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.NOT_FOUND,response.getStatusCode());
+    }
+
+    @Test
+    public void getOrdersForUser_500(){
+        String username = "username";
+        Mockito.when(userRepository.findByUsername(username))
+                .thenThrow(new RuntimeException());
+        ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser(username);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,response.getStatusCode());
     }
 
     @Test

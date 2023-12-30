@@ -49,6 +49,7 @@ public class UserControllerTest {
         CreateUserRequest createUserRequest = new CreateUserRequest();
         createUserRequest.setUsername("test");
         createUserRequest.setPassword("password123");
+        createUserRequest.setConfirmPassword("password123");
 
         ResponseEntity<User> response = userController.createUser(createUserRequest);
 
@@ -59,6 +60,45 @@ public class UserControllerTest {
         assertNotNull(user);
         assertEquals(0, user.getId());
         assertEquals("test", user.getUsername());
+    }
+
+    @Test
+    public void createUser_400() {
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setUsername("test");
+        createUserRequest.setPassword("");
+
+        ResponseEntity<User> response = userController.createUser(createUserRequest);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void createUser_400_2() {
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setUsername("test");
+        createUserRequest.setPassword("password123");
+        createUserRequest.setPassword("password12");
+
+        ResponseEntity<User> response = userController.createUser(createUserRequest);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void createUser_500() {
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setUsername("test");
+        createUserRequest.setPassword("password123");
+        createUserRequest.setConfirmPassword("password123");
+        Mockito.when(userRepository.save(Mockito.any())).thenThrow(new RuntimeException());
+
+        ResponseEntity<User> response = userController.createUser(createUserRequest);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
@@ -82,6 +122,15 @@ public class UserControllerTest {
     }
 
     @Test
+    public void findById_500() {
+        Mockito.when(userRepository.findById(1L))
+                .thenThrow(new RuntimeException());
+        ResponseEntity<User> response = userController.findById(1L);
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
     public void findByUserName_200() {
         String username = "username1";
         User user = createUser(username, "password123");
@@ -93,6 +142,16 @@ public class UserControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(user, response.getBody());
+    }
+
+    @Test
+    public void findByUserName_500() {
+        String username = "username1";
+        Mockito.when(userRepository.findByUsername(username))
+                .thenThrow(new RuntimeException());
+        ResponseEntity<User> response = userController.findByUserName(username);
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
